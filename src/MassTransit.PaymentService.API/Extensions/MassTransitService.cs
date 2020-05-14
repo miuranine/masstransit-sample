@@ -1,5 +1,8 @@
+using System;
 using GreenPipes;
 using MassTransit.PaymentService.API.Consumers;
+using MassTransit.PaymentService.API.States;
+using MassTransit.Saga;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MassTransit.PaymentService.API.Extensions
@@ -23,15 +26,27 @@ namespace MassTransit.PaymentService.API.Extensions
                     cfg.Host("amqp://127.0.0.1:5672", h =>
                     {
                         h.Username("user");
-                        h.Password("*******");
+                        h.Password("g4hPnkGbKj");
                     });
 
-                    cfg.ReceiveEndpoint("place-order", ep =>
+                    cfg.ReceiveEndpoint("pre-order", ep =>
                     {
                         ep.PrefetchCount = 16;
-                        ep.UseMessageRetry(r => r.Interval(2, 100));
-
+                        //Redelivery
+                        ep.UseScheduledRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30)));
+                        ep.UseMessageRetry(r =>
+                        {
+                            //Immediate = Retry immediately, up to the retry limit.
+                            r.Immediate(5);
+                            //Interval = Retry after a fixed delay, up to the retry limit.
+                            r.Interval(2, 100);
+                        });
+                        ep.UseInMemoryOutbox();
+                        
                         ep.ConfigureConsumer<OrderConsumer>(context);
+                        
+                        //If the container registration is not being used, the InMemory saga repository can be created manually and specified on receive endpoint.
+                        //ep.StateMachineSaga(new OrderStateMachine(), new InMemorySagaRepository<OrderState>());
                     });
                 }));
             });

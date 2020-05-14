@@ -23,17 +23,11 @@ namespace MassTransit.OrderService.API.Extensions
                     cfg.Host("amqp://127.0.0.1:5672", h =>
                     {
                         h.Username("user");
-                        h.Password("******");
+                        h.Password("g4hPnkGbKj");
                     });
-
-                    /*cfg.ReceiveEndpoint("submit-order", ep =>
-                    {
-                        ep.PrefetchCount = 16;
-                        ep.UseMessageRetry(r => r.Interval(2, 100));
-
-                        ep.ConfigureConsumer<OrderConsumer>(context);
-                    });*/
                 }));
+                
+                //x.AddSagaStateMachine<OrderStateMachine, OrderState>().InMemoryRepository();
             });
 
             services.AddMassTransitHostedService();
