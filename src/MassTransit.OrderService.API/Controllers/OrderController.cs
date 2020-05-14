@@ -21,7 +21,7 @@ namespace MassTransit.OrderService.API.Controllers
         public async Task<ActionResult> Index([FromBody]OrderRequest request)
         {
             var order = new OrderEvent(Guid.NewGuid(), request.ProductName, request.Qty);
-            var endpoint = await _bus.GetSendEndpoint(new Uri("amqp://127.0.0.1:5672/place-order"));
+            var endpoint = await _bus.GetSendEndpoint(new Uri("amqp://127.0.0.1:5672/pre-order"));
             await endpoint.Send(order);
 
             return Ok("success");
