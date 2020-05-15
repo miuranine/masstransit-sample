@@ -1,6 +1,6 @@
 using System;
 
-namespace Common.Events
+namespace MassTransit.Common.Events
 {
     public class OrderEvent
     {

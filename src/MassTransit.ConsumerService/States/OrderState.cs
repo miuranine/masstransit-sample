@@ -1,7 +1,7 @@
 using System;
 using Automatonymous;
 
-namespace MassTransit.PaymentService.API.States
+namespace MassTransit.ConsumerService.States
 {
     public class OrderState : SagaStateMachineInstance
     {

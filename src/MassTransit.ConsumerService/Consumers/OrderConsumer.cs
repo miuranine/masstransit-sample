@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Common.Events;
 
-namespace MassTransit.PaymentService.API.Consumers
+namespace MassTransit.ConsumerService.Consumers
 {
     public class OrderConsumer : IConsumer<OrderEvent>
     {

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace MassTransit.PaymentService.API
+namespace MassTransit.ConsumerService
 {
     public class Program
     {

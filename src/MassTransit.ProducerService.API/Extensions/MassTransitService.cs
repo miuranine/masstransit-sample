@@ -2,7 +2,7 @@
 using GreenPipes;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MassTransit.OrderService.API.Extensions
+namespace MassTransit.ProducerService.API.Extensions
 {
     public static class MassTransitService
     {

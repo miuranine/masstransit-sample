@@ -1,11 +1,11 @@
 using System;
 using GreenPipes;
-using MassTransit.PaymentService.API.Consumers;
-using MassTransit.PaymentService.API.States;
+using MassTransit.ConsumerService.Consumers;
+using MassTransit.ConsumerService.States;
 using MassTransit.Saga;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MassTransit.PaymentService.API.Extensions
+namespace MassTransit.ConsumerService.Extensions
 {
     public static class MassTransitService
     {

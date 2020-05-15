@@ -1,6 +1,6 @@
 using System;
 
-namespace MassTransit.OrderService.API.Models
+namespace MassTransit.ProducerService.API.Models
 {
     public class OrderRequest
     {

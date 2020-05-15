@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace MassTransit.OrderService.API
+namespace MassTransit.ProducerService.API
 {
     public class Program
     {

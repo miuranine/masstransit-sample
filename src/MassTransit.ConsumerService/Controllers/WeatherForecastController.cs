@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace MassTransit.PaymentService.API.Controllers
+namespace MassTransit.ConsumerService.Controllers
 {
     [ApiController]
     [Route("[controller]")]

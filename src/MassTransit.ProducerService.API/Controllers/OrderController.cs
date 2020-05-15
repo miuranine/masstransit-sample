@@ -1,10 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using Common.Events;
-using MassTransit.OrderService.API.Models;
+using MassTransit.ProducerService.API.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MassTransit.OrderService.API.Controllers
+namespace MassTransit.ProducerService.API.Controllers
 {
     [Route("api/[controller]")]
     public class OrderController : Controller
