@@ -1,6 +1,6 @@
 using System;
 
-namespace MassTransit.PaymentService.API
+namespace Sample.API
 {
     public class WeatherForecast
     {
