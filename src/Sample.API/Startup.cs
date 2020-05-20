@@ -16,6 +16,7 @@ using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Sample.Common.Consumers;
 using Sample.Contracts;
 
 namespace Sample.API
@@ -54,7 +55,9 @@ namespace Sample.API
                         x.UseHealthCheck(provider);
                         
                     }));   
-                cfg.AddRequestClient<SubmitOrder>();
+                cfg.AddRequestClient<ISubmitOrder>(
+                    new Uri($"exchange:{KebabCaseEndpointNameFormatter.Instance.Consumer<SubmitOrderConsumer>()}"));
+                cfg.AddRequestClient<ICheckOrder>();
             });
             
             services.Configure<HealthCheckPublisherOptions>(options =>

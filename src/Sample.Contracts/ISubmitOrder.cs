@@ -3,7 +3,7 @@ using MassTransit;
 
 namespace Sample.Contracts
 {
-    public interface SubmitOrder
+    public interface ISubmitOrder
     {
         Guid OrderId { get; }
         DateTimeOffset Timestamp { get; }

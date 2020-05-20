@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +13,35 @@ namespace Sample.API.Controllers
     public class OrderController : ControllerBase
     {
         private readonly ILogger<OrderController> _logger;
-        private readonly IRequestClient<SubmitOrder> _submitOrderRequestClient;
+        private readonly IRequestClient<ISubmitOrder> _submitOrderRequestClient;
+        private readonly IRequestClient<ICheckOrder> _checkOrderRequestClient;
+        private readonly ISendEndpointProvider _sendEndpointProvider;
 
-        public OrderController(ILogger<OrderController> logger, IRequestClient<SubmitOrder> submitOrderRequestClient)
+        public OrderController(ILogger<OrderController> logger, 
+            IRequestClient<ISubmitOrder> submitOrderRequestClient,
+            IRequestClient<ICheckOrder> checkOrderRequestClient,
+            ISendEndpointProvider sendEndpointProvider)
         {
             _logger = logger;
             _submitOrderRequestClient = submitOrderRequestClient;
+            _checkOrderRequestClient = checkOrderRequestClient;
+            _sendEndpointProvider = sendEndpointProvider;
+        }
+        
+        [HttpGet]
+        public async Task<IActionResult> Get(Guid id)
+        {
+            var (status, notFound)= await _checkOrderRequestClient.GetResponse<IOrderStatus, IOrderNotFound>(new {OrderId = id});
+            if (status.IsCompletedSuccessfully)
+            {
+                var response = await status;
+                return Ok(response.Message);
+            }
+            else
+            {
+                var response = await notFound;
+                return NotFound(response.Message);
+            }
         }
         
         [HttpPost]
@@ -54,6 +78,22 @@ namespace Sample.API.Controllers
 
                 return BadRequest(response.Message);
             }
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody]OrderViewModel model)
+        {
+            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("exchange:submit-order"));
+            await endpoint.Send<ISubmitOrder>(new
+            {
+                OrderId = model.Id,
+                InVar.Timestamp,
+                model.CustomerNumber,
+                model.PaymentCardNumber,
+                model.Notes
+            });
+
+            return Accepted();
         }
     }
 }
