@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Sample.Common.Consumers;
+using Sample.Common.StateMachine;
 using Serilog;
 using Serilog.Events;
 
@@ -36,6 +37,13 @@ namespace Sample.Service
                     services.AddMassTransit(x =>
                     {
                         x.AddConsumersFromNamespaceContaining<SubmitOrderConsumer>();
+                        x.AddSagaStateMachine<OrderStateMachine, OrderState>()
+                            .MartenRepository(hostContext.Configuration.GetConnectionString("postgres"), r =>
+                            {
+                                r.Schema.For<OrderState>()
+                                    //.UseOptimisticConcurrency(true)
+                                    .Index(x => x.CustomerNumber);
+                            });
                         x.AddBus(ConfigureBus);
                     });
                     
