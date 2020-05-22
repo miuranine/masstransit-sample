@@ -13,9 +13,10 @@ using Sample.Common.StateMachine;
 using Sample.Common.StateMachine.OrderStateMachineActivities;
 using Serilog;
 using Serilog.Events;
+using Warehouse.Components.Consumers;
 using Warehouse.Contracts;
 
-namespace Sample.Service
+namespace Warehouse.Service
 {
     class Program
     {
@@ -41,18 +42,9 @@ namespace Sample.Service
                     services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
                     services.AddMassTransit(x =>
                     {
-                        x.AddConsumersFromNamespaceContaining<SubmitOrderConsumer>();
-                        x.AddActivitiesFromNamespaceContaining<AllocateInventoryActivity>();
-                        
-                        x.AddSagaStateMachine<OrderStateMachine, OrderState>(typeof(OrderStateMachineDefinition))
-                            .MartenRepository(hostContext.Configuration.GetConnectionString("postgres"), r =>
-                            {
-                                r.Schema.For<OrderState>()
-                                    //.UseOptimisticConcurrency(true)
-                                    .Index(x => x.CustomerNumber);
-                            });
+                        x.AddActivitiesFromNamespaceContaining<AllocateInventoryConsumer>();
+    
                         x.AddBus(ConfigureBus);
-                        x.AddRequestClient<IAllocateInventory>();
                     });
                     
                     services.AddSingleton<IHostedService, MassTransitConsoleHostedService>();
