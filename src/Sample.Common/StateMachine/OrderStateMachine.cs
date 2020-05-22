@@ -21,7 +21,9 @@ namespace Sample.Common.StateMachine
                      }
                  })); 
             });
-            
+            Event(() => StoreAcceptedOrder, x => x.CorrelateById(m => m.Message.OrderId));
+            Event(() => DriverAcceptedOrder, x => x.CorrelateById(m => m.Message.OrderId));
+
             InstanceState(x => x.CurrentState);
             
             Initially(
@@ -36,6 +38,20 @@ namespace Sample.Common.StateMachine
             
             During(Submitted, 
                 Ignore(OrderSubmitted));
+
+            During(Submitted,
+                When(StoreAcceptedOrder)
+                    .Then(context =>
+                    {
+                        context.Instance.StoreAcceptedDate = context.Data.TimeStamp;
+                    })
+                    .TransitionTo(StoreAccepted),
+                When(DriverAcceptedOrder)
+                    .Then(context =>
+                    {
+                        context.Instance.DriverAcceptedDate = context.Data.TimeStamp;
+                    })
+                    .TransitionTo(HaveDriver));
             
             DuringAny(
                 When(OrderStatusRequested)
@@ -57,7 +73,12 @@ namespace Sample.Common.StateMachine
         }
 
         public State Submitted { get; private set; }
+        public State StoreAccepted { get; private set; }
+        public State HaveDriver { get; private set; }
+
         public Event<IOrderSubmitted> OrderSubmitted { get; private set; }
         public Event<ICheckOrder> OrderStatusRequested { get; private set; }
+        public Event<IStoreAcceptedOrder> StoreAcceptedOrder { get; private set; }
+        public Event<IDriverAcceptedOrder> DriverAcceptedOrder { get; private set; }
     }
 }
