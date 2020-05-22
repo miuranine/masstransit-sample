@@ -38,8 +38,7 @@ namespace Sample.Common.Consumers
             {
                 context.Message.OrderId,
                 context.Message.Timestamp,
-                //context.Message.CustomerNumber,
-                CustomerNumber = context.Message.CustomerNumber
+                context.Message.CustomerNumber
             });
 
             if (context.RequestId != null)
