@@ -1,6 +1,7 @@
 using System;
 using Automatonymous;
 using MassTransit;
+using Sample.Common.StateMachine.OrderStateMachineActivities;
 using Sample.Contracts;
 
 namespace Sample.Common.StateMachine
@@ -10,6 +11,7 @@ namespace Sample.Common.StateMachine
         public OrderStateMachine()
         {
             Event(() => OrderSubmitted, x => x.CorrelateById(m => m.Message.OrderId));
+            Event(() => OrderAccepted, x => x.CorrelateById(m => m.Message.OrderId));
             Event(() => OrderStatusRequested, x =>
             {
                  x.CorrelateById(m => m.Message.OrderId);
@@ -21,6 +23,8 @@ namespace Sample.Common.StateMachine
                      }
                  })); 
             });
+            Event(() => AccountClosed,
+                x => x.CorrelateBy((saga, context) => saga.CustomerNumber == context.Message.CustomerNumber));
             
             InstanceState(x => x.CurrentState);
             
@@ -35,7 +39,12 @@ namespace Sample.Common.StateMachine
                     .TransitionTo(Submitted));
             
             During(Submitted, 
-                Ignore(OrderSubmitted));
+                Ignore(OrderSubmitted),
+                When(AccountClosed)
+                    .TransitionTo(Canceled),
+                When(OrderAccepted)
+                    .Activity(x => x.OfType<AcceptOrderActivity>())
+                    .TransitionTo(Accepted));
             
             DuringAny(
                 When(OrderStatusRequested)
@@ -57,7 +66,11 @@ namespace Sample.Common.StateMachine
         }
 
         public State Submitted { get; private set; }
+        public State Accepted { get; private set; }
+        public State Canceled { get; private set; }
         public Event<IOrderSubmitted> OrderSubmitted { get; private set; }
+        public Event<IOrderAccepted> OrderAccepted { get; private set; }
         public Event<ICheckOrder> OrderStatusRequested { get; private set; }
+        public Event<ICustomerAccountClosed> AccountClosed { get; private set; }
     }
 }

@@ -16,22 +16,26 @@ namespace Sample.API.Controllers
         private readonly IRequestClient<ISubmitOrder> _submitOrderRequestClient;
         private readonly IRequestClient<ICheckOrder> _checkOrderRequestClient;
         private readonly ISendEndpointProvider _sendEndpointProvider;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         public OrderController(ILogger<OrderController> logger, 
             IRequestClient<ISubmitOrder> submitOrderRequestClient,
             IRequestClient<ICheckOrder> checkOrderRequestClient,
-            ISendEndpointProvider sendEndpointProvider)
+            ISendEndpointProvider sendEndpointProvider,
+            IPublishEndpoint publishEndpoint)
         {
             _logger = logger;
             _submitOrderRequestClient = submitOrderRequestClient;
             _checkOrderRequestClient = checkOrderRequestClient;
             _sendEndpointProvider = sendEndpointProvider;
+            _publishEndpoint = publishEndpoint;
         }
         
         [HttpGet]
         public async Task<IActionResult> Get(Guid id)
         {
-            var (status, notFound)= await _checkOrderRequestClient.GetResponse<IOrderStatus, IOrderNotFound>(new {OrderId = id});
+            var (status, notFound) = await _checkOrderRequestClient.GetResponse<IOrderStatus, IOrderNotFound>(new {OrderId = id});
+
             if (status.IsCompletedSuccessfully)
             {
                 var response = await status;
@@ -78,6 +82,18 @@ namespace Sample.API.Controllers
 
                 return BadRequest(response.Message);
             }
+        }
+        
+        [HttpPatch]
+        public async Task<IActionResult> Patch(Guid id)
+        {
+            await _publishEndpoint.Publish<IOrderAccepted>(new
+            {
+                OrderId = id,
+                InVar.Timestamp,
+            });
+
+            return Accepted();
         }
 
         [HttpPut]

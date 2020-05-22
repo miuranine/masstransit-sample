@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -16,11 +17,11 @@ namespace Sample.Common.Consumers
         
         public async Task Consume(ConsumeContext<ISubmitOrder> context)
         {
-            _logger.Log(LogLevel.Debug, "SubmitOrderConsomer: {CustomerNumber}", context.Message.CustomerNumber);
+            _logger?.Log(LogLevel.Debug, "SubmitOrderConsumer: {CustomerNumber}", context.Message.CustomerNumber);
+
             if (context.Message.CustomerNumber.Contains("TEST"))
             {
                 if (context.RequestId != null)
-                {
                     await context.RespondAsync<IOrderSubmissionRejected>(new
                     {
                         InVar.Timestamp,
@@ -28,29 +29,34 @@ namespace Sample.Common.Consumers
                         context.Message.CustomerNumber,
                         Reason = $"Test Customer cannot submit orders: {context.Message.CustomerNumber}"
                     });
-                
-                    return;
-                }
+
+                return;
             }
 
-            //var customer = Task.FromResult("Hello");
-            await context.Publish<IOrderSubmitted>(new
+            MessageData<string> notes = context.Message.Notes;
+            if (notes.HasValue)
+            {
+                string notesValue = await notes.Value;
+
+                Console.WriteLine("NOTES: {0}", notesValue);
+            }
+
+            /*await context.Publish<IOrderSubmitted>(new
             {
                 context.Message.OrderId,
                 context.Message.Timestamp,
-                //context.Message.CustomerNumber,
-                CustomerNumber = context.Message.CustomerNumber
-            });
+                context.Message.CustomerNumber,
+                context.Message.PaymentCardNumber,
+                context.Message.Notes
+            });*/
 
             if (context.RequestId != null)
-            {
                 await context.RespondAsync<IOrderSubmissionAccepted>(new
                 {
                     InVar.Timestamp,
                     context.Message.OrderId,
-                    context.Message.CustomerNumber
+                    CustomerNumber = "Test Response"
                 });
-            }
         }
     }
 }
